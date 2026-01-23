@@ -19,6 +19,11 @@ def read_temperature():
     return {"temperature": 10.5}
 
 
+@app.put("/api/temperature/history")
+def get_historical_temperature():
+    pass
+
+
 @app.get("/api/temperature/threshold")
 def read_temperature_threshold():
     return {"threshold": 18}
@@ -44,7 +49,7 @@ class ManualOverrideRequest(BaseModel):
 
 @app.get("/api/manual-override")
 def is_manual_override():
-    return {"isManual": False}
+    return {"is_manual": True}
 
 
 @app.put("/api/manual-override")

@@ -41,7 +41,7 @@ def close_redis_client():
         print("✓ Redis connection closed")
 
 
-def set_manual_override(is_manual: bool) -> bool:
+def save_manual_override(is_manual: bool) -> bool:
     try:
         client = get_redis_client()
         key = "manual_override"
@@ -52,7 +52,7 @@ def set_manual_override(is_manual: bool) -> bool:
         return False
 
 
-def get_manual_override() -> bool:
+def fetch_manual_override() -> bool:
     try:
         client = get_redis_client()
         key = "manual_override"
@@ -63,7 +63,7 @@ def get_manual_override() -> bool:
         return False
 
 
-def set_temperature_threshold(threshold: float) -> bool:
+def save_temperature_threshold(threshold: float) -> bool:
     try:
         client = get_redis_client()
         key = "temperature_threshold"
@@ -74,7 +74,7 @@ def set_temperature_threshold(threshold: float) -> bool:
         return False
 
 
-def get_temperature_threshold() -> float:
+def fetch_temperature_threshold() -> float:
     try:
         client = get_redis_client()
         key = "temperature_threshold"
@@ -85,7 +85,7 @@ def get_temperature_threshold() -> float:
         raise e
 
 
-def set_radiator_state(state: str) -> bool:
+def save_radiator_state(state: str) -> bool:
     try:
         client = get_redis_client()
         key = "radiator_state"
@@ -96,7 +96,7 @@ def set_radiator_state(state: str) -> bool:
         raise e
 
 
-def get_radiator_state() -> str:
+def fetch_radiator_state() -> str:
     try:
         client = get_redis_client()
         key = "radiator_state"

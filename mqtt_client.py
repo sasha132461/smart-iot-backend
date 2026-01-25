@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 from dotenv import load_dotenv
 import os
-from redis_client import get_temperature_threshold
+from redis_client import fetch_temperature_threshold
 from influx_db import save_data
 
 load_dotenv()
@@ -16,7 +16,10 @@ MQTT_PASSWORD = os.getenv("MQTT_PASSWORD")
 TURN_RADIATOR_ON_COMMAND = 1
 TURN_RADIATOR_OFF_COMMAND = 0
 
+RELAY_TOPIC = "relay"
+
 mqtt_client = None
+
 
 def on_connect(client, userdata, flags, reason_code, properties):
     print("Connected to MQTT Broker")
@@ -34,16 +37,14 @@ def on_message(client, userdata, msg):
 
         save_data(float(current_temperature), float(battery_percentage))
 
-        if current_temperature is not None and current_temperature < get_temperature_threshold():
-            relay_topic = "relay"
-            client.publish(relay_topic, TURN_RADIATOR_ON_COMMAND)
+        if current_temperature is not None and current_temperature < fetch_temperature_threshold():
+            client.publish(RELAY_TOPIC, TURN_RADIATOR_ON_COMMAND)
             print(
-                f"🌡️ Temperature {current_temperature}°C is below 22°C - Sending {TURN_RADIATOR_ON_COMMAND} to {relay_topic}")
+                f"🌡️ Temperature {current_temperature}°C is below 22°C - Sending {TURN_RADIATOR_ON_COMMAND} to {RELAY_TOPIC}")
         else:
-            relay_topic = "relay"
-            client.publish(relay_topic, TURN_RADIATOR_OFF_COMMAND)
+            client.publish(RELAY_TOPIC, TURN_RADIATOR_OFF_COMMAND)
             print(
-                f"🌡️ Temperature {current_temperature}°C is ≥22°C - Sending {TURN_RADIATOR_OFF_COMMAND} to {relay_topic}")
+                f"🌡️ Temperature {current_temperature}°C is ≥22°C - Sending {TURN_RADIATOR_OFF_COMMAND} to {RELAY_TOPIC}")
 
     except json.JSONDecodeError:
         print("Failed to parse MQTT message as JSON")
@@ -79,3 +80,11 @@ def stop_mqtt_client():
 
 def get_mqtt_client():
     return mqtt_client
+
+
+def turn_radiator_on():
+    mqtt_client.publish(RELAY_TOPIC, TURN_RADIATOR_ON_COMMAND)
+
+
+def turn_radiator_off():
+    mqtt_client.publish(RELAY_TOPIC, TURN_RADIATOR_OFF_COMMAND)

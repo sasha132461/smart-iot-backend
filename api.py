@@ -1,13 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from influx_db import get_last_temperature, get_temperature_history, get_last_battery
+from mqtt_client import turn_radiator_on, turn_radiator_off
 from redis_client import (
-    get_manual_override,
-    set_manual_override as set_manual_override_redis,
-    get_temperature_threshold,
-    set_temperature_threshold as set_temperature_threshold_redis,
-    get_radiator_state,
-    set_radiator_state as set_radiator_state_redis,
+    fetch_manual_override,
+    save_manual_override,
+    fetch_temperature_threshold,
+    save_temperature_threshold,
+    fetch_radiator_state,
+    save_radiator_state,
 )
 
 router = APIRouter()
@@ -35,7 +36,7 @@ def get_historical_temperature():
 
 @router.get("/api/temperature/threshold")
 def read_temperature_threshold():
-    threshold = get_temperature_threshold()
+    threshold = fetch_temperature_threshold()
 
     return {"threshold": threshold}
 
@@ -56,7 +57,7 @@ class TemperatureThresholdRequest(BaseModel):
 
 @router.put("/api/temperature/threshold")
 def set_temperature_threshold(req: TemperatureThresholdRequest):
-    success = set_temperature_threshold_redis(req.threshold)
+    success = save_temperature_threshold(req.threshold)
 
     if not success:
         raise HTTPException(status_code=500, detail="Failed to set temperature threshold")
@@ -70,13 +71,13 @@ class ManualOverrideRequest(BaseModel):
 
 @router.get("/api/manual-override")
 def is_manual_override():
-    is_manual = get_manual_override()
+    is_manual = fetch_manual_override()
     return {"is_manual": is_manual}
 
 
 @router.put("/api/manual-override")
 def set_manual_override(req: ManualOverrideRequest):
-    success = set_manual_override_redis(req.is_manual)
+    success = save_manual_override(req.is_manual)
 
     if not success:
         raise HTTPException(status_code=500, detail="Failed to set manual override state")
@@ -90,17 +91,17 @@ class RadiatorStateRequest(BaseModel):
 
 @router.get("/api/radiator-state")
 def get_radiator_state_endpoint():
-    is_manual = get_manual_override()
+    is_manual = fetch_manual_override()
 
     if is_manual:
-        state = get_radiator_state()
+        state = fetch_radiator_state()
 
         if state is None:
             raise HTTPException(status_code=404, detail="No radiator state found")
 
         return {"state": state}
     else:
-        threshold = get_temperature_threshold()
+        threshold = fetch_temperature_threshold()
         temperature = get_last_temperature()
 
         return {"state": "on" if temperature["temperature"] < threshold else "off"}
@@ -111,16 +112,22 @@ def set_radiator_state(req: RadiatorStateRequest):
     if req.state not in ["on", "off"]:
         raise HTTPException(status_code=400, detail="State must be 'on' or 'off'")
 
-    is_manual = get_manual_override()
+    is_manual = fetch_manual_override()
     if not is_manual:
         raise HTTPException(
             status_code=403,
             detail="Manual override must be enabled to control the radiator"
         )
 
-    success = set_radiator_state_redis(req.state)
+    success = save_radiator_state(req.state)
 
     if not success:
         raise HTTPException(status_code=500, detail="Failed to set radiator state")
+
+    # todo notify radiator controller of state change
+    if req.state == "on":
+        turn_radiator_on()
+    else:
+        turn_radiator_off()
 
     return {"state": req.state}

@@ -103,7 +103,6 @@ def get_radiator_state_endpoint():
         threshold = get_temperature_threshold()
         temperature = get_last_temperature()
 
-        print(f"Zheka {temperature}")
         return {"state": "on" if temperature["temperature"] < threshold else "off"}
 
 

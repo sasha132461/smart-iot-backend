@@ -1,5 +1,5 @@
-import datetime
 import os
+from datetime import datetime
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 from influxdb_client import InfluxDBClient, Point

@@ -14,12 +14,21 @@ def get_redis_client() -> redis.Redis:
     if _redis_client is None:
         redis_host = os.getenv("REDIS_HOST")
         redis_port = int(os.getenv("REDIS_PORT"))
+        redis_username = os.getenv("REDIS_USERNAME")
+        redis_password = os.getenv("REDIS_PASSWORD")
 
-        _redis_client = redis.Redis(
-            host=redis_host,
-            port=redis_port,
-            decode_responses=True,
-        )
+        redis_kwargs = {
+            "host": redis_host,
+            "port": redis_port,
+            "decode_responses": True,
+        }
+        
+        if redis_username:
+            redis_kwargs["username"] = redis_username
+        if redis_password:
+            redis_kwargs["password"] = redis_password
+
+        _redis_client = redis.Redis(**redis_kwargs)
 
         try:
             _redis_client.ping()

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from influx_db import get_last_temperature, get_temperature_history, get_last_battery
 from mqtt_client import turn_radiator_on, turn_radiator_off
@@ -10,8 +11,11 @@ from redis_client import (
     fetch_radiator_state,
     save_radiator_state,
 )
+import os
 
 router = APIRouter()
+
+FIRMWARE_DIR = "firmware"
 
 
 @router.get("/api/temperature")
@@ -131,3 +135,26 @@ def set_radiator_state(req: RadiatorStateRequest):
         turn_radiator_off()
 
     return {"state": req.state}
+
+
+# --- OTA Firmware endpoints ---
+
+@router.get("/firmware/manifest.json")
+def get_manifest():
+    path = os.path.join(FIRMWARE_DIR, "manifest.json")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="Manifest not found")
+    return FileResponse(path, media_type="application/json")
+
+
+@router.get("/firmware/{filename}")
+def get_firmware_file(filename: str):
+    allowed = ["main.py", "ota.py", "version.txt"]
+    if filename not in allowed:
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    path = os.path.join(FIRMWARE_DIR, filename)
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    return FileResponse(path, media_type="application/octet-stream")

@@ -6,7 +6,7 @@ from umqtt.simple import MQTTClient
 import time
 from ota import OTA, get_version
 
-
+# Hello 
 class Configuration:
     def __init__(self, device_name: str, wifi_name: str, wifi_password: str,
                  mqtt_broker: str, mqtt_port: int, mqtt_username: str,

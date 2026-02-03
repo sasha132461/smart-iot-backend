@@ -1,9 +1,10 @@
 {
+    "_comment": "Invoke-WebRequest -Uri 'URL/main.py' -OutFile 'temp.py'; certutil -hashfile temp.py SHA256; Remove-Item temp.py",
     "version": "1.2.0",
     "files": [
         {
             "name": "main.py",
-            "sha256": "e4c45fdb36594103c40141d2366279333e32969d98f504b9d0d1e5620ac1694c"
+            "sha256": "65c265657a50a7c2b67bcee7ad39c0bf94c016991ecf84e52a7383e06c3878e3"
         },
         {
             "name": "ota.py",

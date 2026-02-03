@@ -6,7 +6,8 @@ from umqtt.simple import MQTTClient
 import time
 from ota import OTA, get_version
 
-# -
+
+# Hello World
 class Configuration:
     def __init__(self, device_name: str, wifi_name: str, wifi_password: str,
                  mqtt_broker: str, mqtt_port: int, mqtt_username: str,
@@ -112,11 +113,20 @@ def check_ota():
         print(f"OTA error: {e}")
 
 
+def get_ota_interval():
+    try:
+        with open('config.json') as f:
+            cfg = ujson.load(f)
+        return cfg.get('ota', {}).get('check_interval', 3600)
+    except:
+        return 30
+
+
 def start():
     configuration = read_config()
 
     connect_wifi(configuration.wifi_name, configuration.wifi_password)
-    
+
     check_ota()
 
     mqtt_client = connect_mqtt(
@@ -128,6 +138,9 @@ def start():
     )
 
     sensor = dht.DHT22(machine.Pin(13))
+
+    last_ota_check = time.time()
+    ota_interval = get_ota_interval()
 
     while True:
         try:
@@ -147,9 +160,17 @@ def start():
 
             mqtt_client.publish(configuration.mqtt_topic, ujson.dumps(payload))
             print("Published data:", payload)
+
+            # Periodic OTA check
+            if time.time() - last_ota_check >= ota_interval:
+                print("Checking for updates...")
+                check_ota()
+                last_ota_check = time.time()
+
         except Exception as e:
             print("Error:", e)
 
         time.sleep(10)
+
 
 start()

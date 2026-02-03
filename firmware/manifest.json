@@ -1,6 +1,6 @@
 {
     "_comment": "Invoke-WebRequest -Uri \"https://smart-iot-backend-oe5q.onrender.com/firmware/main.py\" -OutFile \"temp.py\"; certutil -hashfile temp.py SHA256; Remove-Item temp.py",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "files": [
         {
             "name": "main.py",

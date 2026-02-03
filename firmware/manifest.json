@@ -4,7 +4,7 @@
     "files": [
         {
             "name": "main.py",
-            "sha256": "4d390d43a2c07070d77914f7d18a7a86c2b304aadf85c8ecadfad0fba76e61c0"
+            "sha256": "d55ee37869829ba8f9e1f08b56f76b49e6b99dfd34517458f390dfc15342dfc1"
         },
         {
             "name": "ota.py",

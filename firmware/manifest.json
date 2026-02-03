@@ -3,11 +3,11 @@
     "files": [
         {
             "name": "main.py",
-            "sha256": "fd925899295e3deebe707e9add1628c06f5a564f3caf81de73a28804c20ac478"
+            "sha256": "d6c3bf3f02a4da7a6f79f19d7602c49257f027b169a85872c95244ecc1ecc646"
         },
         {
             "name": "ota.py",
-            "sha256": "d6c3bf3f02a4da7a6f79f19d7602c49257f027b169a85872c95244ecc1ecc646"
+            "sha256": "e1425cc98579f07cdf7bced2e6ef1ceec35a98248a21a1fb40b399501c03b192"
         }
     ]
 }
